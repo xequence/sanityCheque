@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SanityCheque", "SanityCheque.csproj", "{BFF218DD-2596-428D-80FA-99FC3F29E4CD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SanityCheque.Tests", "..\SanityCheque.Tests\SanityCheque.Tests.csproj", "{31D7FA26-02E7-43F2-954B-FBD47A86B60A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EmailService", "..\EmailService\EmailService.csproj", "{DDA6A618-2F68-45D7-A85B-23F3FE6EC7ED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BFF218DD-2596-428D-80FA-99FC3F29E4CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BFF218DD-2596-428D-80FA-99FC3F29E4CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BFF218DD-2596-428D-80FA-99FC3F29E4CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BFF218DD-2596-428D-80FA-99FC3F29E4CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31D7FA26-02E7-43F2-954B-FBD47A86B60A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31D7FA26-02E7-43F2-954B-FBD47A86B60A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31D7FA26-02E7-43F2-954B-FBD47A86B60A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31D7FA26-02E7-43F2-954B-FBD47A86B60A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDA6A618-2F68-45D7-A85B-23F3FE6EC7ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDA6A618-2F68-45D7-A85B-23F3FE6EC7ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDA6A618-2F68-45D7-A85B-23F3FE6EC7ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDA6A618-2F68-45D7-A85B-23F3FE6EC7ED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E0CE6818-CFA2-4D42-8A8A-C04CF769C03B}
+	EndGlobalSection
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 4
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://xequence.visualstudio.com/DefaultCollection
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = SanityCheque.csproj
+		SccLocalPath1 = .
+		SccProjectUniqueName2 = ..\\SanityCheque.Tests\\SanityCheque.Tests.csproj
+		SccProjectName2 = ../SanityCheque.Tests
+		SccLocalPath2 = ..\\SanityCheque.Tests
+		SccProjectUniqueName3 = ..\\EmailService\\EmailService.csproj
+		SccProjectName3 = ../EmailService
+		SccLocalPath3 = ..\\EmailService
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,152 @@
+﻿@page "/monthlyWeight"
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas.Canvas2D;
+
+@using SanityCheque.Models
+@using SanityCheque.Data
+
+@inject EventService eventService
+@inject AuthenticationStateProvider authProvider
+
+
+<AuthorizeView>
+    <Authorized>
+        <h3>SanityCheque Reporting - Weight over time</h3>
+        <hr />
+        <BECanvas Width="1000" Height="500" @ref="_canvasReference"></BECanvas>
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private Canvas2DContext _context;
+    protected BECanvasComponent _canvasReference;
+    private IEvent[] itemsArrys;
+    private static readonly string[] pirChartColor = new[] {
+        "#3090C7",
+        "#BDEDFF",
+        "#F9B7FF",
+        "#736AFF",
+        "#78C7C7",
+        "#B048B5",
+        "#4E387E",
+        "#7FFFD4",
+        "#3EA99F",
+        "#EBF4FA",
+        "#F9B7FF",
+        "#8BB381",
+        //"#6CBB3C", "#F87217", "#EAC117", "#EDDA74", "#CD7F32", "#CCFB5D", "#FDD017", "#9DC209", "#E67451", "#728C00","#617C58", "#64E986"
+    };
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
+        var Name = authState.User.Identity.Name;
+        if (!string.IsNullOrEmpty(Name))
+        {
+            itemsArrys = eventService.GetWeightsOverTime(new ProductParameters { PageNumber=1, PageSize=10},  Name).GetAwaiter().GetResult().ToArray();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            int lastend = 0;
+            int xSpace = 10;
+            int XvalPosition = xSpace;
+            //int maxDataVal = itemsArrys.Max(row => row.EventTypeId);
+            int maxDataVal = 42;
+
+            int widthcalculation = (Convert.ToInt32(_canvasReference.Width) - 150) / itemsArrys.Length;
+
+
+
+            int chartHeight = Convert.ToInt32(_canvasReference.Height) - 40;
+
+            this._context = await this._canvasReference.CreateCanvas2DAsync();
+            int colorval = 0;
+
+            // Draw the axises
+
+            await this._context.BeginPathAsync();
+            await this._context.MoveToAsync(xSpace, xSpace);
+
+            // first Draw Y Axis
+
+            await this._context.LineToAsync(xSpace, chartHeight);
+
+            // Next draw the X-Axis
+
+            await this._context.LineToAsync(Convert.ToInt32(_canvasReference.Width) - 10, chartHeight);
+            await this._context.StrokeAsync();
+
+            @foreach (var itemsArry in itemsArrys)
+            {
+                double tempOz;
+                double tempLbs;
+                if((double)itemsArry.WeightOunces != 0)
+                {
+                    tempOz = (double)itemsArry.WeightOunces;
+                }
+                else
+                {
+                    tempOz = 0;
+                }
+
+                if((double)itemsArry.WeightPounds != 0){
+                    tempLbs = (double)itemsArry.WeightPounds;
+                }else
+                {
+                    tempLbs = 0;
+                }
+                // Draw Xaxis Plots Line and Text   ***********
+
+                XvalPosition = XvalPosition + widthcalculation;
+                await this._context.MoveToAsync(XvalPosition, chartHeight);
+                await this._context.LineToAsync(XvalPosition, chartHeight + tempLbs + tempOz);
+                await this._context.StrokeAsync();
+                await this._context.SetFillStyleAsync("#034560");
+                await this._context.SetFontAsync("12pt Calibri");
+                await this._context.StrokeTextAsync(itemsArry.DateCreated.ToShortDateString(), XvalPosition - 40, chartHeight + 24);
+
+
+                //  EndXval Plotting  ************
+                ////Draw Bar Graph  **************==================********************
+
+                var barRatio = maxDataVal - (int)itemsArry.WeightPounds;
+
+                //Check and Draw for the Barheight
+
+                var barfillHeight = Convert.ToInt32(barRatio * (Convert.ToInt32(chartHeight - xSpace)));
+
+                barfillHeight = Convert.ToInt32(chartHeight) - barRatio;
+
+
+                //For the BackColor Filing
+                await this._context.SetFillStyleAsync("#000000");
+                await this._context.FillRectAsync(XvalPosition - widthcalculation - 1, chartHeight - 1, widthcalculation + 3, -(barfillHeight - 58));
+                //// *****
+
+                // for the ACTUAL bar Chart
+                await this._context.SetFillStyleAsync(pirChartColor[colorval]);
+                await this._context.FillRectAsync(XvalPosition - widthcalculation, chartHeight, widthcalculation + 2, -(barfillHeight - 60));
+
+                //Add the vaule to each bar
+
+                await this._context.SetFillStyleAsync("#000000");
+                await this._context.SetFontAsync("18pt Calibri");
+                await this._context.FillTextAsync($"{itemsArry.WeightPounds.ToString()}.{itemsArry.WeightOunces.ToString()}", XvalPosition - widthcalculation + 4, chartHeight / 2);
+                await this._context.SetFillStyleAsync(pirChartColor[colorval]);
+
+                //END Draw Bar Graph  **************==================********************
+                colorval = colorval + 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+}
+

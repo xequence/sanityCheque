@@ -1,0 +1,96 @@
+﻿@page "/create"
+@using SanityCheque.Models
+@using SanityCheque.Data
+@using SanityCheque.Models.ViewModels
+
+@inject NavigationManager NavManager
+@inject EventService EventService
+@inject AuthenticationStateProvider authProvider
+
+<AuthorizeView>
+    <Authorized Context="Auth">
+
+        <Loading IsLoading="isProcessing">
+            <EditForm Model="@starship" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label>
+                        What occured (Vomiting, Diarrhea, Nausea)
+                        <InputText class="form-control" @bind-Value="starship.EventName" placeholder="What happened?" />
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label>
+                        Notes about the event
+                        <InputTextArea class="form-control" cols="32" rows="3" @bind-Value="starship.Notes" placeholder="Notes to help explain specifics." />
+                    </label>
+                </div>
+                <div class="mb-3">
+                    <label>
+                        Please select a date and time of occurance
+                        @*<InputDate @bind-Value="starship.DateCreated" />*@
+                        <InputDateTime class="form-control" @bind-Value="starship.DateCreated"></InputDateTime>
+                    </label>
+
+                </div>
+
+                <div class="mb-3">
+                    <label>
+                        Weight Lbs 
+                        <InputNumber class="form-control" @bind-Value="starship.WeightPounds" placeholder="Weight in lbs?" />
+
+                    </label>
+
+                </div>
+                <div class="mb-3">
+                    <label>
+                        Weight Oz 
+                        <InputNumber class="form-control" @bind-Value="starship.WeightOunces" placeholder="Weight in ounces?" />
+
+                    </label>
+
+                </div>
+                <button type="submit">Submit</button>
+
+                @*<p>
+                        <a href="http://www.startrek.com/">Star Trek</a>,
+                        &copy;1966-2019 CBS Studios, Inc. and
+                        <a href="https://www.paramount.com">Paramount Pictures</a>
+                    </p>*@
+            </EditForm>
+        </Loading>
+    </Authorized>
+</AuthorizeView>
+@code {
+    private IEvent starship = new EventViewModel { DateCreated = DateTime.Now };
+    bool isProcessing;
+
+    private async Task HandleValidSubmit()
+    { 
+        try
+        {
+            isProcessing = true;
+            await Task.Delay(100);
+            AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
+            var Name = authState.User.Identity.Name;
+
+            EventService.Create(starship, Name);
+        }
+        catch
+        {
+            base.StateHasChanged();
+            isProcessing = false;
+        }
+        finally
+        {
+
+            NavManager.NavigateTo("/events");
+        }
+    }
+
+}
+
+
+

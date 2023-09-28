@@ -1,0 +1,67 @@
+﻿@page "/grant"
+@using SanityCheque.Models
+@using SanityCheque.Data
+
+@inject NavigationManager NavManager
+@inject ProfileService ProfileService
+@inject AuthenticationStateProvider authProvider
+<AuthorizeView>
+    <Authorized Context="Auth">
+
+        <h2>Grant access to family and friends.</h2>
+        <Loading IsLoading="isProcessing">
+            <EditForm Model="@grant" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label>
+                        The email address must exist and be a registered user in the system before you submit this request.
+                        You will see the value in the upper right of the screen of the family member you are allowing access to events.
+                        <InputText class="form-control" @bind-Value="grant.Email" placeholder="Your family members email address." />
+                    </label>
+                </div>
+
+                <button type="submit">Submit</button>
+
+            </EditForm>
+        </Loading>
+    </Authorized>
+</AuthorizeView>
+@code {
+
+    private SimpleGrant grant = new SimpleGrant { };
+    bool isProcessing;
+
+
+    private async Task HandleValidSubmit()
+    {
+        //Logger.LogInformation("HandleValidSubmit called");
+
+        // Process the valid form
+
+        try
+        {
+            isProcessing = true;
+            AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
+            var Name = authState.User.Identity.Name;
+
+            ProfileService.Grant(grant, Name);
+        }
+        catch
+        {
+            base.StateHasChanged();
+            isProcessing = false;
+        }
+        finally
+        {
+            isProcessing = false;
+            grant = new SimpleGrant { };
+            base.StateHasChanged();
+        }
+    }
+
+}
+
+
+

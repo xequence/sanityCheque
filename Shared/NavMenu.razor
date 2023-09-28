@@ -1,0 +1,82 @@
+﻿<div class="top-row pl-4 navbar navbar-dark">
+    <a class="navbar-brand" href="">SanityCheque</a>
+    <button class="navbar-toggler" @onclick="ToggleNavMenu">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+</div>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+            <ul class="nav flex-column">
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> Home
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="profile">
+                        @* need a claim that says Guardian? *@
+                        <span class="oi oi-clipboard" aria-hidden="true"></span> Profile
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="create">
+                        <span class="oi oi-plus" aria-hidden="true"></span> Create Event
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="events">
+                        <span class="oi oi-list-rich" aria-hidden="true"></span> Events
+                    </NavLink>
+                </li>
+
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="grant">
+                        @* need a claim that says, Guardian, to grant access to claim GrandParent *@
+                        <span class="oi oi-people" aria-hidden="true"></span> Grant Access
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="/Privacy" Match="NavLinkMatch.All">
+                        <span class="oi oi-document" aria-hidden="true"></span> Privacy
+                    </NavLink>
+                </li>
+                 <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="/monthlyWeight" Match="NavLinkMatch.All">
+                        <span class="oi  oi-heart" aria-hidden="true"></span> Monthly Weight
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+            <ul class="nav flex-column">
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="Identity/Account/Login" Match="NavLinkMatch.All">
+                        <span class="oi oi-home" aria-hidden="true"></span> Login
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" href="/Privacy" Match="NavLinkMatch.All">
+                        <span class="oi oi-document" aria-hidden="true"></span> Privacy
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

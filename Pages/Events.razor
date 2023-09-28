@@ -1,0 +1,96 @@
+﻿@page "/events"
+@page "/events/{PageNumber:int}"
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using SanityCheque.Models
+@using SanityCheque.Data 
+@using Microsoft.AspNetCore.Identity.UI.Services
+
+@inject EventService EventService
+@inject AuthenticationStateProvider authProvider
+@inject IEmailSender emailSender;
+
+<AuthorizeView>
+    <Authorized>
+        <h1>Event Info</h1>
+
+        <p>The information below explains what event happened, some details and time.</p>
+
+
+        @if (events == null)
+        {
+            <p><em>Loading...</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Notes</th>
+                        <th>Weight (lbs)</th>
+                        <th>Weight (oz) </th>
+                        <th>Date Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in events)
+                    {
+                        <tr>
+                            <td>@e.EventName</td>
+                            <td>@e.Notes</td>
+                            <td>@e.WeightPounds</td>
+                            <td>@e.WeightOunces</td>
+                            <td>@e.DateCreated.ToShortDateString() @@: @e.DateCreated.ToShortTimeString()</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+
+        <div>
+            @for (int i = 1; i <= events.Count; i++)
+            {
+                <span><a href="events/@i"> @i </a>|</span>         
+            }
+        </div>
+        <NavLink class="nav-link" href="create">
+            <span class="oi oi-plus" aria-hidden="true"></span> Create Event
+        </NavLink>
+        @code {
+            private PagedList<IEvent> events;
+            
+            [Parameter]
+            public int PageNumber { get; set; }
+
+            protected override async Task OnInitializedAsync()
+            {
+                AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
+                var Name = authState.User.Identity.Name; 
+                ProductParameters param = new ProductParameters(){
+                    PageNumber = PageNumber
+                };
+
+                events = await EventService.Get(param, Name);
+            }
+
+            protected override async Task OnParametersSetAsync()
+            {
+                AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
+                var Name = authState.User.Identity.Name; 
+                ProductParameters param = new ProductParameters(){
+                    PageNumber = PageNumber,
+                    PageSize = 10
+                };
+
+                if (PageNumber < 1) PageNumber = 1;
+                events = await EventService.Get(param, Name);
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        Not authorized.
+    </NotAuthorized>
+</AuthorizeView>
+

@@ -1,0 +1,85 @@
+﻿@page "/profile"
+@using SanityCheque.Models
+@using SanityCheque.Data
+@using SanityCheque.Models.ViewModels 
+
+@inject NavigationManager NavManager
+@inject ProfileService ProfileService
+@inject AuthenticationStateProvider authProvider
+
+<AuthorizeView>
+    <Authorized Context="Auth">
+        <Loading IsLoading="isProcessing">
+            <EditForm Model="@profile" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label>
+                        Name
+                        <InputText class="form-control" @bind-Value="profile.Name" placeholder="their name" />
+                    </label><input type="hidden" @bind-value="profile.Id" />
+                </div>
+                <div class="mb-3">
+                    <label>
+                        Bio
+                        <InputTextArea class="form-control" cols="32" rows="3" @bind-Value="profile.Bio" placeholder="about me" />
+                    </label>
+                </div>
+                
+                <button type="submit">Submit</button>
+
+            </EditForm>
+
+        </Loading>
+    </Authorized>
+    <NotAuthorized>
+        Not authorized.
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    private IProfile profile = new ProfileViewModel { };
+    bool isProcessing;
+
+    protected override void OnInitialized()
+    {
+        isProcessing = true;
+        AuthenticationState authState = authProvider.GetAuthenticationStateAsync().GetAwaiter().GetResult();
+        var Name = authState.User.Identity.Name;
+        var found = ProfileService.Get(Name).GetAwaiter().GetResult();
+        if (found != null)
+        {
+            profile = found;
+        }
+        isProcessing = false;
+        base.OnInitialized();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+
+        try
+        {
+            isProcessing = true;
+            AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
+            var Name = authState.User.Identity.Name;
+
+            ProfileService.Upsert(profile, Name);
+
+        }
+        catch
+        {
+            base.StateHasChanged();
+            isProcessing = false;
+        }
+        finally
+        {
+
+            NavManager.NavigateTo("/profile", true);
+        }
+    }
+
+}
+
+

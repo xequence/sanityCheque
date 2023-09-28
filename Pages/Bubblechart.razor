@@ -1,0 +1,141 @@
+﻿@page "/bubble"
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas.Canvas2D;
+
+@using SanityCheque.Models
+@using SanityCheque.Data
+
+@inject EventService eventService;
+@inject AuthenticationStateProvider authProvider
+
+<h3>bubblechart</h3>
+
+<h3>Shanu - Draw Bar Chart using Blazor Canvas Extensions</h3>
+<hr />
+<BECanvas Width="500" Height="500" @ref="_canvasReference"></BECanvas>
+
+@code {
+
+    private Canvas2DContext _context;
+
+    protected BECanvasComponent _canvasReference;
+
+    IEvent[] itemsArrys;
+
+    private static readonly string[] pirChartColor = new[]
+      {
+      "#3090C7", "#BDEDFF", "#F9B7FF", "#736AFF", "#78C7C7", "#B048B5", "#4E387E","#7FFFD4", "#3EA99F", "#EBF4FA", "#F9B7FF", "#8BB381",
+          //"#6CBB3C", "#F87217", "#EAC117", "#EDDA74", "#CD7F32", "#CCFB5D", "#FDD017", "#9DC209", "#E67451", "#728C00","#617C58", "#64E986"
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        AuthenticationState authState = await authProvider.GetAuthenticationStateAsync();
+        var Name = authState.User.Identity.Name;
+
+        itemsArrys = await eventService.Get(Name);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var lastend = 0;
+        var xSpace = 10;
+        var XvalPosition = xSpace;
+        var maxDataVal = itemsArrys.Max(row => row.EventTypeId);
+        var noOfPlots = itemsArrys.Length;
+        var chartWidth = Convert.ToInt32(_canvasReference.Width);
+
+        var chartHeight = Convert.ToInt32(_canvasReference.Height);
+
+        int widthcalculation = (Convert.ToInt32(_canvasReference.Width) - 100) / itemsArrys.Length;
+
+
+
+        chartHeight = Convert.ToInt32(_canvasReference.Height) - 40;
+
+        this._context = await this._canvasReference.CreateCanvas2DAsync();
+        int colorval = 0;
+
+        // Draw the axises
+
+        await this._context.BeginPathAsync();
+        await this._context.MoveToAsync(xSpace, xSpace);
+
+        // first Draw Y Axis
+
+        await this._context.LineToAsync(xSpace, chartHeight);
+
+        // Next draw the X-Axis
+
+        await this._context.LineToAsync(Convert.ToInt32(_canvasReference.Width) - 10, chartHeight);
+        await this._context.StrokeAsync();
+
+
+        int varbubbleSize = 30;
+
+        int ival = 1;
+
+        @foreach (var itemsArry in itemsArrys)
+        {
+
+            // Draw Xaxis Plots Line and Text   ***********
+
+            XvalPosition = XvalPosition + widthcalculation;
+            await this._context.MoveToAsync(XvalPosition, chartHeight);
+            await this._context.LineToAsync(XvalPosition, chartHeight + 15);
+            await this._context.StrokeAsync();
+            await this._context.SetFillStyleAsync("#034560");
+            await this._context.SetStrokeStyleAsync("#034560");
+            await this._context.SetFontAsync("12pt Calibri");
+            await this._context.StrokeTextAsync(itemsArry.EventName, XvalPosition - 40, chartHeight + 24);
+
+
+            //  EndXval Plotting  ************
+            ////Draw Bar Graph  **************==================********************
+
+            await this._context.SetFillStyleAsync(pirChartColor[colorval]);
+
+            await this._context.SetStrokeStyleAsync(pirChartColor[colorval]);
+
+            await this._context.BeginPathAsync();
+
+            varbubbleSize = itemsArry.EventTypeId;
+            if (itemsArry.EventTypeId > 70)
+            {
+                varbubbleSize = itemsArry.EventTypeId - 10;
+            }
+
+            await this._context.ArcAsync(getXPlotvalue(ival) - 6, getYPlotVale(varbubbleSize - 10), varbubbleSize, varbubbleSize, Math.PI * 2, true);
+
+            await this._context.FillAsync();
+
+            await this._context.StrokeAsync();
+            await this._context.SetFillStyleAsync("#034560");
+            await this._context.SetStrokeStyleAsync("#034560");
+            await this._context.SetFontAsync("12pt Calibri");
+            await this._context.StrokeTextAsync(itemsArry.EventTypeId.ToString(), getXPlotvalue(ival) - 12, getYPlotVale(itemsArry.EventTypeId) + 46);
+
+            await this._context.SetStrokeStyleAsync("#C0C0C0");
+
+            colorval = colorval + 1;
+
+            ival = ival + 1;
+
+        }
+
+        double getXPlotvalue(int val)
+        {
+
+            return Convert.ToDouble((chartWidth - 40) / noOfPlots) * val + (xSpace * 1.5) - 20;
+        }
+
+        // Return the y value
+        double getYPlotVale(int val)
+        {
+            return chartHeight - (((chartHeight - xSpace) / maxDataVal) * val);
+
+        }
+    }
+}
+}
